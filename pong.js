@@ -103,6 +103,7 @@ function Ball(bar1) {
     this.xComponent = .5;
     this.yComponent = .5;
     this.justChangedDirection = false;
+    this.timer = null;
     
     $("#playagain").click(this.reset.bind(this));
     $("#losses").text("0").data("losses", 0);
@@ -130,6 +131,22 @@ Ball.prototype.reset = function() {
     $("#youlose").css("display", "none");
     PLAYING = true;
     this.startMotion();
+    this.startTime();
+}
+
+Ball.prototype.startTime = function() {
+    this.timer = setInterval(this.updateTime, 100);
+}
+
+Ball.prototype.updateTime = function() {
+    var timer = $("#time");
+    var currentTime = parseFloat(timer.data("time"));
+    var newTime = (currentTime + .1).toFixed(1);
+    timer.text(newTime).data("time", newTime);
+}
+
+Ball.prototype.stopTime = function() {
+    clearTimeout(this.timer);
 }
 
 Ball.prototype.startMotion = function() {
@@ -170,6 +187,7 @@ Ball.prototype.animateBall = function() {
         $("#losses").text($("#losses").data("losses"));
         $("#youlose").css("display", "block");
         PLAYING = false;
+        this.stopTime();
         return;
     }
     GLOBAL_TIMERS.push(setTimeout(this.animateBall.bind(this), 10));

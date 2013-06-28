@@ -135,6 +135,7 @@ Ball.prototype.reset = function() {
 }
 
 Ball.prototype.startTime = function() {
+    $("#time").text("0").data("time", "0");
     this.timer = setInterval(this.updateTime, 100);
 }
 
@@ -188,6 +189,13 @@ Ball.prototype.animateBall = function() {
         $("#youlose").css("display", "block");
         PLAYING = false;
         this.stopTime();
+        
+        var time = parseFloat($("#time").data("time"));
+        
+        if ($.cookie("bestTime") == undefined || time > parseFloat($.cookie("bestTime"))) {
+            $.cookie("bestTime", time, {expires:10000});
+            $("#bestTime").text(time);
+        }
         return;
     }
     GLOBAL_TIMERS.push(setTimeout(this.animateBall.bind(this), 10));
@@ -234,6 +242,13 @@ Ball.prototype.invertVertDirection = function() {
 }
 
 window.addEventListener("DOMContentLoaded", function() {
+    var best = $.cookie("bestTime");
+    if (best) {
+        $("#bestTime").text(best);
+    }
+    else {
+        $("#bestTime").text("-");
+    }
     var bar1 = new Bar();
     window.ball = new Ball(bar1);
     

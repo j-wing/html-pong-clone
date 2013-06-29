@@ -27,233 +27,105 @@ function withinRange(value, target, range) {
 
 
 function Bar() {
-    this.movingDown = false;
-    this.movingUp = false;
-    this.speedFactor = 1;
-    this.lastVal;
+    this.ctx = $("#main")[0].getContext("2d");
     
-    this.element = $("#pong1");
-    centerElemVert(this.element);
+    this.draw();
+}
+
+Bar.prototype.draw1 = function() {
+    var rightEdge = window.innerWidth;
+    var bottomEdge = window.innerHeight;
     
-    $(document).keydown(function(e) {
-        if (!PLAYING) return;
-        if (e.which == 40 & !this.movingDown) {
-            this.movingDown = true;
-            this.movingUp = false;
-            this.animate(-1);
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, rightEdge, bottomEdge);
+    this.ctx.fillStyle = "rgba(255, 255, 255, .7)";
+    for (var i=0;i <100;i++) {
+        for (var ii=0;ii <=100;ii++) {
+            this.ctx.fillStyle = "rgba(255, 255, 255, .7)";
+            this.ctx.fillRect(ii*25,i*25, 20, 20);
         }
-        else if (e.which == 38 & !this.movingUp) {
-            this.movingUp = true;
-            this.movingDown = false;
-            this.animate(1);
-        }
+    }
+    this.ctx.beginPath();
+    this.ctx.fillStyle = "white";
+    this.ctx.arc(rightEdge/2, bottomEdge/2, 100, 0, Math.PI*2);
+    this.ctx.fill();
+    for (var i=50;i>0;i-=2) {
+        this.ctx.arc(rightEdge/2, bottomEdge/2, i, 0, Math.PI*2);
+        this.ctx.stroke();
+    }
+}
+
+Bar.prototype.draw = function() {
+    var rightEdge = window.innerWidth;
+    var bottomEdge = window.innerHeight;
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, rightEdge, bottomEdge);
+
+    this.ctx.fillStyle = "white";
+//     this.ctx.fillRect(rightEdge/2-2, 0, 2, 100000);
+//     this.ctx.fillRect(0, bottomEdge/2-2, 100000, 2);
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeStyle = "white";
+    this.ctx.lineTo(rightEdge, bottomEdge);
+    this.ctx.stroke();
+    
+    var startX = 0;
+    var startY = 0;
+    var endX = rightEdge;
+    var endY = bottomEdge;
+    
+    setInterval(function() {
+        this.ctx.clearRect(0, 0, rightEdge, bottomEdge);
+        
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(0, 0, rightEdge, bottomEdge);
+        
+        this.ctx.beginPath();
+        
+        console.log(startX, endX, startY, endY);
+        if (startX >= rightEdge) {
+            startX = rightEdge;
+            endX = 0;
             
-    }.bind(this));
-    
-    $(document).keyup(function(e) {
-        if (e.which == 40 & this.movingDown) {
-            this.movingDown = false;
+            startY += 5;
+            endY -= 5;
         }
-        else if (e.which == 38 & this.movingUp) {
-            this.movingUp = false;
+        else if (startY >= bottomEdge) {
+            startY = bottomEdge;
+            endY = 0;
+            
+            startX -= 5;
+            endX += 5;
         }
-    }.bind(this));
-    return this;
-}
-    
-Bar.prototype.animate = function(val) {
-    var timesCalled = 0;
-    this.speedFactor = 1;
-    this.lastVal = val;
-    
-    actuallyAnimate = function() {
-        timesCalled += 1;
-        if (timesCalled % 10 === 0 && this.speedFactor <= 2) {
-            this.speedFactor += .5;
-        }
-        
-        if (this.movingDown & val < 0) {
-            if (this.element.offset().top + BAR_MOVE_INC >= window.innerHeight - 120) {
-                this.element.css("top", window.innerHeight - 120 + "px");
-            }
-            else {
-                this.element.css("top", (this.element.offset().top + (BAR_MOVE_INC*this.speedFactor)));
-            }
-        }
-        else if (this.movingUp & val > 0) {
-            if (this.element.offset().top - BAR_MOVE_INC <= 0) {
-                this.element.css("top", "0px");
-            }
-            else {
-                this.element.css("top", (this.element.offset().top - BAR_MOVE_INC*this.speedFactor));
-            }
-        }
-        
-        if ((this.movingDown || this.movingUp) & this.lastVal === val) GLOBAL_TIMERS.push(setTimeout(actuallyAnimate, 10));
-    }.bind(this)
-    actuallyAnimate();
-}
-
-    
-
-function Ball(bar1) {
-    this.bar1 = bar1;
-    this.vertDirectionMultiplier = 1;
-    this.horizDirectionMultiplier = 1;
-    this.xComponent = .5;
-    this.yComponent = .5;
-    this.justChangedDirection = false;
-    this.timer = null;
-    
-    $("#playagain").click(this.reset.bind(this));
-    $("#losses").text("0").data("losses", 0);
-    $("#difficulty").text("0").click(function(e) {
-        if (GLOBAL_SPEED_MULT <= 10.5) {
-            GLOBAL_SPEED_MULT += .5;
+        else if (startX < 0) {
+            startX = 0;
+            endX = rightEdge;
+            
+            startY -= 5;
+            endY += 5;
         }
         else {
-            GLOBAL_SPEED_MULT = .5;
+            startY = 0;
+            endY = bottomEdge;
+            
+            startX += 5;
+            endX -= 5;
         }
-        MAX_BALL_DISTANCE = (BALL_MOVE_INC * GLOBAL_SPEED_MULT);
-        $(e.target).text((GLOBAL_SPEED_MULT-1) * 2);
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = "white";
+        this.ctx.moveTo(startX, startY);
+        this.ctx.lineTo(endX, endY);
+        this.ctx.stroke();
         
-    }.bind(this));
-    
-
-    this.element = $("<div id='ball'></div>");
-    this.element.appendTo($(document.body));
-    this.reset();
-    this.element.css("top", MAX_BALL_DISTANCE + 1);
-    return this;
-}
-Ball.prototype.reset = function() {
-    centerElemInWindow(this.element);
-    $("#youlose").css("display", "none");
-    PLAYING = true;
-    this.startMotion();
-    this.startTime();
-}
-
-Ball.prototype.startTime = function() {
-    $("#time").text("0").data("time", "0");
-    this.timer = setInterval(this.updateTime, 100);
-}
-
-Ball.prototype.updateTime = function() {
-    var timer = $("#time");
-    var currentTime = parseFloat(timer.data("time"));
-    var newTime = (currentTime + .1).toFixed(1);
-    timer.text(newTime).data("time", newTime);
-}
-
-Ball.prototype.stopTime = function() {
-    clearTimeout(this.timer);
-}
-
-Ball.prototype.startMotion = function() {
-    this.animateBall();
-}
-
-Ball.prototype.animateBall = function() {
-    var offsets = this.element.offset();
-    var leftOffset = offsets.left;
-    var topOffset = offsets.top;
-    
-    if (leftOffset >= 0) {
-        this.advanceBall(leftOffset, topOffset);
-    }
-    if (AUTO_TRACK_BALL) {
-        var barPos = topOffset-this.bar1.element.width();
-        if (barPos < 0) barPos = 0;
-        if (barPos + this.bar1.element.height() > window.innerHeight) barPos = (window.innerHeight - this.bar1.element.height());
-        this.bar1.element.css("top", barPos);
-    }
-    
-    if (this.needsHorizDirectonChange(leftOffset)) { 
-        this.invertHorizDirection();
-    }
-    else if (this.needsVertDirectionChange(topOffset)) {
-        this.invertVertDirection();
-    }
-    
-    if (this.justChangedDirection) {
-        this.justChangedDirection = false;
-        this.advanceBall(leftOffset, topOffset);
-    }
-
-    
-    if (leftOffset < $("#pong1").width()-10) {
-        centerElemInWindow($("#youlose"));
-        $("#losses").data("losses",  $("#losses").data("losses")+1);
-        $("#losses").text($("#losses").data("losses"));
-        $("#youlose").css("display", "block");
-        PLAYING = false;
-        this.stopTime();
         
-        var time = parseFloat($("#time").data("time"));
-        
-        if ($.cookie("bestTime") == undefined || time > parseFloat($.cookie("bestTime"))) {
-            $.cookie("bestTime", time, {expires:10000});
-            $("#bestTime").text(time);
-        }
-        return;
-    }
-    GLOBAL_TIMERS.push(setTimeout(this.animateBall.bind(this), 10));
+    }.bind(this), 10);
 }
-
-Ball.prototype.needsHorizDirectonChange = function(leftOffset) {
-    return (this.determineCoincidenceWithBar(this.bar1) || withinRange(leftOffset+this.element.width(), window.innerWidth, MAX_BALL_DISTANCE));
-}
-
-Ball.prototype.needsVertDirectionChange = function(topOffset) {
-    return (withinRange(topOffset, 0, MAX_BALL_DISTANCE) || withinRange(topOffset+this.element.width(), window.innerHeight, MAX_BALL_DISTANCE));
-}
-
-Ball.prototype.advanceBall = function(leftOffset, topOffset) {
-    this.element.css("left", leftOffset-(GLOBAL_SPEED_MULT*BALL_MOVE_INC*this.horizDirectionMultiplier));
-    this.element.css("top", topOffset+(GLOBAL_SPEED_MULT*BALL_MOVE_INC*this.vertDirectionMultiplier));
-}
-
-
-Ball.prototype.determineCoincidenceWithBar = function(bar) {
-    var offsets = this.element.offset();
-    var topOffset = offsets.top;
-    var leftOffset = offsets.left;
-    var minTop,maxTop;
     
-    if (withinRange(leftOffset, bar.element.width(), MAX_BALL_DISTANCE)) {
-        minTop = bar.element.offset().top;
-        maxTop = minTop + bar.element.height();
-        
-        if (topOffset >= minTop & topOffset <= maxTop) {
-            return true;
-        }
-    }
-}
-
-Ball.prototype.invertHorizDirection = function() {
-    this.horizDirectionMultiplier = this.horizDirectionMultiplier * -1;
-    this.justChangedDirection = true;
-}
-
-Ball.prototype.invertVertDirection = function() {
-    this.vertDirectionMultiplier = this.vertDirectionMultiplier * -1;
-    this.justChangedDirection = true;
-}
-
-window.addEventListener("DOMContentLoaded", function() {
-    var best = $.cookie("bestTime");
-    if (best) {
-        $("#bestTime").text(best);
-    }
-    else {
-        $("#bestTime").text("-");
-    }
-    var bar1 = new Bar();
-    window.ball = new Ball(bar1);
-    
-    ball.startMotion();
-    
+window.addEventListener("DOMContentLoaded", function() { 
+    $("#main").attr("width", window.innerWidth).attr("height", window.innerHeight);
+    new Bar();
     $(document).keydown(function(e) {
         // Emergency stop
         if (e.which == 32) {

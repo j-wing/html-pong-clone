@@ -56,71 +56,10 @@ Bar.prototype.draw1 = function() {
 }
 
 Bar.prototype.draw = function() {
-    var rightEdge = window.innerWidth;
-    var bottomEdge = window.innerHeight;
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, 0, rightEdge, bottomEdge);
-
-    this.ctx.fillStyle = "white";
-//     this.ctx.fillRect(rightEdge/2-2, 0, 2, 100000);
-//     this.ctx.fillRect(0, bottomEdge/2-2, 100000, 2);
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineWidth = 3;
-    this.ctx.strokeStyle = "white";
-    this.ctx.lineTo(rightEdge, bottomEdge);
-    this.ctx.stroke();
-    
-    var startX = 0;
-    var startY = 0;
-    var endX = rightEdge;
-    var endY = bottomEdge;
-    
-    setInterval(function() {
-        this.ctx.clearRect(0, 0, rightEdge, bottomEdge);
-        
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0, 0, rightEdge, bottomEdge);
-        
-        this.ctx.beginPath();
-        
-        console.log(startX, endX, startY, endY);
-        if (startX >= rightEdge) {
-            startX = rightEdge;
-            endX = 0;
-            
-            startY += 5;
-            endY -= 5;
-        }
-        else if (startY >= bottomEdge) {
-            startY = bottomEdge;
-            endY = 0;
-            
-            startX -= 5;
-            endX += 5;
-        }
-        else if (startX < 0) {
-            startX = 0;
-            endX = rightEdge;
-            
-            startY -= 5;
-            endY += 5;
-        }
-        else {
-            startY = 0;
-            endY = bottomEdge;
-            
-            startX += 5;
-            endX -= 5;
-        }
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeStyle = "white";
-        this.ctx.moveTo(startX, startY);
-        this.ctx.lineTo(endX, endY);
-        this.ctx.stroke();
+    var rightEdge 
         
         
-    }.bind(this), 10);
+    }.bind(this), 100);
 }
     
 window.addEventListener("DOMContentLoaded", function() { 
